@@ -25,9 +25,11 @@ class CreateAlunoTable extends Migration
             $table->string('cidade', 100);
             $table->string('uf', 2);
             $table->unsignedBigInteger('instituicao_id');
+            $table->unsignedBigInteger('curso_id');
             $table->boolean('status')->default(1);
 
             $table->foreign('instituicao_id')->references('id')->on('instituicao');
+            $table->foreign('curso_id')->references('id')->on('curso');
         });
     }
 
@@ -40,6 +42,7 @@ class CreateAlunoTable extends Migration
     {
         Schema::table('aluno', function (Blueprint $table) {
             $table->dropForeign('aluno_instituicao_id_foreign');
+            $table->dropForeign('aluno_curso_id_foreign');
         });
         Schema::dropIfExists('aluno');
     }

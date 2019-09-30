@@ -18,28 +18,28 @@
                             <div class="col-md-4">
                                 <label>Status</label><br>
                                 <span style="padding-right:7px;">@{{curso_edicao.status | nomeStatus}}</span>
-                                <a href="#" @click="curso_edicao.status = toggleStatus(curso_edicao.status)">
                                     <i :class="['fa', curso_edicao.status == 1?'fa-toggle-on':'fa-toggle-off']"></i>
-                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label> Associar alunos</label>
-                        <input type="text" class="form-control" placeholder="Pesquisar..." name="filtro_alunos" value="">
+                        <input type="text" class="form-control" placeholder="Pesquisar..." name="filtro_alunos" v-model="filtro.aluno" @keyup="buscarAlunos(curso_edicao.id)">
                         <table class="table" >
                             <thead style="display: block; ">
                                 <tr>
                                     <th><i class="far fa-check-square"></i></th>
                                     <th style="width:50%;">Nome</th>
                                     <th style="width:50%;">CPF</th>
+                                    <th style="width:50%;">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="scroll-y" style="display: block; height: 150px;">
                                 <tr v-for="aluno in alunos">
-                                    <td><input type="checkbox" v-model="alunosAssociados" :value="aluno" :disabled="aluno.curso_id == curso_edicao.id?'disabled':'false'"> </td>
+                                    <td><input type="checkbox" v-model="alunos_associados" :value="aluno.id" :disabled="aluno.curso_id == curso_edicao.id || curso_edicao.status == 0 || aluno.status == 0"> </td>
                                     <td style="width:50%;">@{{aluno.nome}}</td>
                                     <td style="width:50%;">@{{aluno.cpf}}</td>
+                                    <td style="width:50%;">@{{aluno.status | nomeStatus}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -48,7 +48,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-primary" @click="salvarCurso()">Salvar</button>
             </div>
         </div>
     </div>

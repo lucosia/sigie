@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -113,8 +113,28 @@ var app = new Vue({
       status: 1,
       alunos: []
     },
-    alunosAssociados: [],
+    aluno_padrao: {
+      id: null,
+      nome: null,
+      cpf: null,
+      data_de_nascimento: null,
+      celular: null,
+      endereco: null,
+      numero: null,
+      bairro: null,
+      cidade: null,
+      uf: null,
+      instituicao_id: null,
+      curso_id: null,
+      status: 1,
+      curso: {}
+    },
+    alunos_associados: [],
     curso_edicao: {},
+    aluno_edicao: {
+      curso: {}
+    },
+    alterandoAlunoCurso: false,
     erro: null
   },
   filters: {
@@ -128,6 +148,7 @@ var app = new Vue({
   },
   mounted: function mounted() {
     this.buscarCursos();
+    this.buscarAlunos();
   },
   methods: {
     buscarCursos: function buscarCursos() {
@@ -135,18 +156,35 @@ var app = new Vue({
         argumento: this.filtro.curso
       }).then(function (response) {
         this.$set(this, 'cursos', response.data);
-      }, function (response) {// alert("Erro");
+      }, function (response) {
+        alert("Erro");
+      });
+    },
+    buscarAlunos: function buscarAlunos(curso_id) {
+      this.$http.post('/instituicao/alunos', {
+        argumento: this.filtro.aluno,
+        curso: curso_id
+      }).then(function (response) {
+        this.$set(this, 'alunos', response.data);
+      }, function (response) {
+        alert("Erro");
       });
     },
     editarCurso: function editarCurso(curso) {
-      if (curso) {
-        this.$set(this, 'curso_edicao', JSON.parse(JSON.stringify(curso)));
-      } else {
-        this.$set(this, 'curso_edicao', JSON.parse(JSON.stringify(this.curso_padrao)));
+      this.$set(this, 'curso_edicao', JSON.parse(JSON.stringify(curso ? curso : this.curso_padrao)));
+      this.$set(this, 'alunos_associados', this.curso_edicao.alunos.map(function (a) {
+        return a.id;
+      }));
+      this.buscarAlunos(this.curso_edicao.id);
+    },
+    editarAluno: function editarAluno(aluno) {
+      this.$set(this, 'aluno_edicao', JSON.parse(JSON.stringify(aluno ? aluno : this.aluno_padrao)));
+
+      if (!aluno) {
+        this.alterandoAlunoCurso = true;
       }
 
-      this.$set(this, 'alunosAssociados', this.curso_edicao.alunos);
-      this.buscarAlunos(this.curso_edicao.id);
+      ;
     },
     toggleStatus: function toggleStatus(status) {
       if (status) {
@@ -155,13 +193,88 @@ var app = new Vue({
 
       return 1;
     },
-    buscarAlunos: function buscarAlunos(curso_id) {
-      this.$http.post('/instituicao/alunos', {
-        argumento: this.filtro.aluno,
-        curso: curso_id
+    alterarCursoAluno: function alterarCursoAluno() {
+      var _this = this;
+
+      if (this.alterandoAlunoCurso) {
+        this.aluno_edicao.curso = this.cursos.filter(function (c) {
+          return c.id == _this.aluno_edicao.curso_id;
+        }).pop();
+      }
+
+      this.alterandoAlunoCurso = this.toggleStatus(this.alterandoAlunoCurso);
+    },
+    salvarCurso: function salvarCurso() {
+      this.$http.post('/instituicao/salvarCurso', {
+        curso: this.curso_edicao,
+        alunos: this.alunos_associados
       }).then(function (response) {
-        this.$set(this, 'alunos', response.data);
-      }, function (response) {// alert("Erro");
+        this.buscarCursos();
+        alert("Sucesso!");
+
+        if (this.curso_edicao.id) {
+          $('#modalEditCurso').modal('hide');
+        } else {
+          this.editarCurso();
+        }
+      }, function (response) {
+        alert("Erro");
+      });
+    },
+    salvarAluno: function salvarAluno() {
+      this.$http.post('/instituicao/salvarAluno', {
+        aluno: this.aluno_edicao
+      }).then(function (response) {
+        this.buscarAlunos();
+        alert("Sucesso!");
+
+        if (this.aluno_edicao.id) {
+          $('#modalEditaluno').modal('hide');
+        } else {
+          this.editarAluno();
+        }
+      }, function (response) {
+        alert("Erro");
+      });
+    },
+    deletarCurso: function deletarCurso(curso) {
+      var conf = confirm("Tem certeza que deseja excluir este curso?");
+
+      if (!conf) {
+        return 0;
+      }
+
+      if (curso.alunos.length > 0) {
+        var conf_desativar = confirm("Este curso possui " + curso.alunos.length + " alunos cadastrados, portanto será desativado. Continuar?");
+
+        if (!conf_desativar) {
+          return 0;
+        }
+      }
+
+      this.$http.post('/instituicao/deletarCurso', {
+        curso: curso.id
+      }).then(function (response) {
+        this.buscarCursos();
+        alert("Sucesso!");
+      }, function (response) {
+        alert("Erro");
+      });
+    },
+    desativarAluno: function desativarAluno(aluno) {
+      var conf = confirm("Tem certeza que deseja desativar este aluno?");
+
+      if (!conf) {
+        return 0;
+      }
+
+      this.$http.post('/instituicao/desativarAluno', {
+        aluno: aluno
+      }).then(function (response) {
+        this.buscarAlunos();
+        alert("Sucesso!");
+      }, function (response) {
+        alert("Erro");
       });
     }
   }
@@ -169,7 +282,7 @@ var app = new Vue({
 
 /***/ }),
 
-/***/ 1:
+/***/ 2:
 /*!************************************************!*\
   !*** multi ./resources/js/instituicao_home.js ***!
   \************************************************/

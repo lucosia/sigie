@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Curso extends Model
 {
     protected $table="curso";
+    protected $fillable=['id','nome','duracao','instituicao_id','status'];
+    public $timestamps = false;
 
     public function alunos()
     {

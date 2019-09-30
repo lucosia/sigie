@@ -11,10 +11,13 @@
         <table class="table">
             <tbody>
                 <tr v-for="curso in cursos">
-                    <td><input type="checkbox" name="" value=""></td>
                     <td>@{{curso.nome}}</td>
                     <td>@{{curso.status | nomeStatus}}</td>
-                    <td><a href="#" data-toggle="modal" data-target="#modalEditCurso" @click="editarCurso(curso)"> <i class="fa fa-edit"></i> </a></td>
+                    <td>@{{curso.alunos.length}} Alunos Cadastrados</td>
+                    <td>
+                        <a href="#" data-toggle="modal" data-target="#modalEditCurso" @click="editarCurso(curso)" ><i class="fa fa-edit"></i></a>
+                        <a href="#" @click="deletarCurso(curso)" style="margin-left: 1rem; color: red;" ><i class="fa fa-trash"></i></a>
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -38398,7 +38398,7 @@ function xhrClient (request) {
 
 function nodeClient (request) {
 
-    var client = __webpack_require__(/*! got */ 2);
+    var client = __webpack_require__(/*! got */ 1);
 
     return new PromiseObj(function (resolve) {
 
@@ -51086,7 +51086,7 @@ module.exports = __webpack_require__(/*! /home/julia/Projetos/sigie/resources/sa
 
 /***/ }),
 
-/***/ 2:
+/***/ 1:
 /*!*********************!*\
   !*** got (ignored) ***!
   \*********************/
